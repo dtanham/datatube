@@ -1,0 +1,9 @@
+/**
+ * Viewer CSS file
+**/
+
+iframe.viewer {
+	height: 100%;
+	weidth: 100%;
+	border: 1px dashed gray;
+}
