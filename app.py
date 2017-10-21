@@ -13,7 +13,7 @@ else:
 	logger.setLevel(logging.INFO)
 
 app = flask.Flask(__name__)
-app.config.from_pyfile('dev_env.py')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI', 'sqlite:///test_db.sqlite')
 
 db = SQLAlchemy(app)
 

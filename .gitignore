@@ -1,4 +1,5 @@
 *.pyc
-*_env.py
+*_env.sh
 venv
 .cache
+*.sqlite
