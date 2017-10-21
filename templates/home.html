@@ -6,9 +6,14 @@
 </head>
 <body>
 	<div class="container">
-		<nav class="navbar navbar-expand-lg navbar-light bg-light">
-			<a class="navbar-brand" href="/">DataTube</a>
+		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			<a class="navbar-brand mb-0 h1" href="/">DataTube</a>
 		</nav>
+
+		<div class="jumbotron">
+		  <h1 class="display-3">Share your data with the world</h1>
+		  <p class="lead">DataTube lets you easily and securely publish HTML exports from Jupyter and R Studio.</p>
+		</div>
 
 		<div class="container">
 			<h2>Documents</h2>
@@ -20,14 +25,18 @@
 		</div>
 
 		<div class="container">
-			<form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-				<h3>Upload a new document</h3>
-				<p>Title: <input type="text" name="title"></p>
-				<p>Description: <input type="text" name="description"></p>
-				<p>Tags: <input type="text" name="tags" placeholder="dataviz, playing, MI"></p>
-				<p>File: <input type="file" name="the_file"></p>
-				<p><input type="submit" value="Submit"></p>
-			</form>
+			<div class="card">
+				<div class="card-body">	
+					<h3 class="card-title">Upload a new document</h3>
+					<form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+						<div class="form-group"><label for="title">Title:</label> <input class="form-control" type="text" name="title"></div>
+						<div class="form-group"><label for="description">Description:</label> <input class="form-control" type="text" name="description"></div>
+						<div class="form-group"><label for="tags">Tags:</label> <input class="form-control" type="text" name="tags" placeholder="dataviz, playing, MI"></div>
+						<div class="form-group"><label for="the_file">File:</label> <input class="form-control" type="file" name="the_file"></div>
+						<div class="form-group"><input class="form-control" type="submit" value="Submit"></div>
+					</form>
+				</div>
+			</div>
 		</div>
 
 	</div>
