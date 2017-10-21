@@ -5,10 +5,10 @@ Lots of data analysis frameworks allow the publication of projects as flat HTML 
 DataTube lets you upload, version and present these to your users.
 
 # Configuration
-Create a ```dev_env.py``` file or similar with at least the following contents:
+Set the ```SQLALCHEMY_DATABASE_URI``` environment variable with something that sqlalchemy can handle, for example:
 
 ```
-SQLALCHEMY_DATABASE_URI = "postgresql://<username:password>@<postgreshost>/<database-name>"
+SQLALCHEMY_DATABASE_URI="postgresql://<username:password>@<postgreshost>/<database-name>"
 
 ```
 
