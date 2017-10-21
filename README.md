@@ -12,3 +12,4 @@ SQLALCHEMY_DATABASE_URI = "postgresql://<username:password>@<postgreshost>/<data
 
 ```
 
+<img src="https://travis-ci.org/dtanham/datatube.svg?branch=master" alt="Travis build status">
