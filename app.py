@@ -118,7 +118,9 @@ def add_user(username, password, email):
 	u.username = username
 	u.email = email
 
-	if User.query.filter(User.username == username):
+	if User.query.filter(User.username == username).first():
+		return None
+	if User.query.filter(User.email == email).first():
 		return None
 
 	u.password_salt = ''.join(random.choice(string.ascii_lowercase+string.digits) for i in range(16))

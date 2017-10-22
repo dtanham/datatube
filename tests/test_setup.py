@@ -22,10 +22,10 @@ def test_add_document():
 
 def test_user_creation_and_authentication():
 	u = add_user("testuser", "password123", "test@example.com")
+	print(u)
 
 	u1 = User.query.filter(User.username == "testuser").first()
 	assert u.id == u1.id
 
 	u2 = validate_user("testuser", "password123")
 	assert u.id == u2.id
-	
