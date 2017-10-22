@@ -19,3 +19,13 @@ def test_add_document():
 
 	assert len(get_all_documents()) == 2
 	Document.query.filter(Document.id==d.id).delete()
+
+def test_user_creation_and_authentication():
+	u = add_user("testuser", "password123", "test@example.com")
+
+	u1 = User.query.filter(User.username == "testuser").first()
+	assert u.id == u1.id
+
+	u2 = validate_user("testuser", "password123")
+	assert u.id == u2.id
+	

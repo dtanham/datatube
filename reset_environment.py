@@ -13,7 +13,7 @@ def do_setup():
 	s = b"asdflkjweofijfslkj"
 	hashed_pass = hashlib.sha256(s+b"password").hexdigest()
 
-	u = User(username="dtanham", email="dan@tanham.co.uk", password_hash=hashed_pass, password_salt=s)
+	u = User(username="default", email="default@example.com", password_hash=hashed_pass, password_salt=s)
 
 	db.session.add(u)
 	db.session.commit()

@@ -4,6 +4,7 @@ from datetime import datetime
 import logging
 import os
 import hashlib
+import random, string
 
 logging.getLogger(__name__)
 logger = logging.getLogger()
@@ -29,6 +30,13 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+
+    def compare_passwords(u, password):
+    	# print(str(hashlib.sha256((u.password_salt+password).encode('utf-8')).hexdigest()) + ":" + u.password_hash)
+    	# print(str(hashlib.sha256((u.password_salt+password).encode('utf-8')).hexdigest()) == u.password_hash)
+    	if str(hashlib.sha256((u.password_salt+password).encode('utf-8')).hexdigest()) == u.password_hash:
+    		return True
+    	return False
 
 class Document(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -104,4 +112,28 @@ def add_document(**kwargs):
 	db.session.commit()
 
 	return d
+
+def add_user(username, password, email):
+	u = User()
+	u.username = username
+	u.email = email
+
+	if User.query.filter(User.username == username):
+		return None
+
+	u.password_salt = ''.join(random.choice(string.ascii_lowercase+string.digits) for i in range(16))
+	sp = (u.password_salt+password).encode("utf-8")
+
+	u.password_hash = hashlib.sha256(sp).hexdigest()
+	db.session.add(u)
+	db.session.commit()
+
+	return u
+
+def validate_user(username, password):
+	u = User.query.filter(User.username == username).first()
+	if User.compare_passwords(u, password):
+		return u
+	else:
+		return None
 
