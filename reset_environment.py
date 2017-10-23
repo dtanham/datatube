@@ -10,13 +10,15 @@ def clean_env():
 
 def do_setup():
 	clean_env()
-	s = b"asdflkjweofijfslkj"
-	hashed_pass = hashlib.sha256(s+b"password").hexdigest()
+	# s = b"asdflkjweofijfslkj"
+	# hashed_pass = hashlib.sha256(s+b"password").hexdigest()
 
-	u = User(username="default", email="default@example.com", password_hash=hashed_pass, password_salt=s)
+	# u = User(username="default", email="default@example.com", password_hash=hashed_pass, password_salt=s, role="admin")
 
-	db.session.add(u)
-	db.session.commit()
+	# db.session.add(u)
+	# db.session.commit()
+
+	u = add_user("default", "password", "default@example.com")
 
 
 	# Add test documents

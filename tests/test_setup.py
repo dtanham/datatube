@@ -29,3 +29,16 @@ def test_user_creation_and_authentication():
 
 	u2 = validate_user("testuser", "password123")
 	assert u.id == u2.id
+
+def test_session_login():
+	c = app.test_client()
+	r = c.post('/basic/login', data=dict(
+        username="default",
+        password="password"
+    ), follow_redirects=True)
+	assert "Logged in as" in str(r.data)
+
+def test_session_logout():
+	c = app.test_client()
+	r = c.get('/basic/logout', follow_redirects=True)
+	assert "You have been logged out" in str(r.data)

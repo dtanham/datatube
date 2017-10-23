@@ -1,10 +1,7 @@
 import flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime
-import logging
-import os
-import hashlib
-import random, string
+import logging, os, hashlib, random, string
 
 logging.getLogger(__name__)
 logger = logging.getLogger()
@@ -32,9 +29,7 @@ class User(db.Model):
         return '<User %r>' % self.username
 
     def compare_passwords(u, password):
-    	# print(str(hashlib.sha256((u.password_salt+password).encode('utf-8')).hexdigest()) + ":" + u.password_hash)
-    	# print(str(hashlib.sha256((u.password_salt+password).encode('utf-8')).hexdigest()) == u.password_hash)
-    	if str(hashlib.sha256((u.password_salt+password).encode('utf-8')).hexdigest()) == u.password_hash:
+    	if str(hashlib.sha256((str(u.password_salt)+str(password)).encode('utf-8')).hexdigest()) == str(u.password_hash):
     		return True
     	return False
 
@@ -47,9 +42,8 @@ class Document(db.Model):
 	author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 	body = db.Column(db.Text, nullable=True)
 
-# class Tag(db.Model):
-# 	id = db.Column(db.Integer, primary_key=True)
-# 	tag = db.Column(db.String(128), nullable=False, unique=True)
+# Authentication setup
+app.config['SECRET_KEY'] = ''.join(random.choice(string.ascii_lowercase+string.digits) for i in range(16))
 
 
 # Views
@@ -83,6 +77,32 @@ def upload_file():
 	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'])
 	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
 
+# Authentication views
+@app.route('/basic/login')
+def basic_login():
+	return flask.render_template("login.html", message=flask.request.args.get("message",""))
+
+@app.route('/basic/login', methods=['POST'])
+def basic_login_submit():
+	username = flask.request.form.get('username', 'default')
+	password = flask.request.form.get('password', 'default')
+	u = validate_user(username, password)
+
+	if u:
+		flask.session['user'] = {
+			"username": u.username,
+			"id": u.id,
+			"role": u.role
+		}
+		return flask.redirect(flask.url_for('home', message="Success"))
+	else:
+		return flask.render_template("login.html", error="The username and password combination you provided is not valid.")
+
+@app.route('/basic/logout')
+def basic_logout():
+	if flask.session.get('user', None):
+		flask.session.pop("user")
+	return flask.redirect(flask.url_for('basic_login', message="You have been logged out."))
 
 # Controllers
 #############
@@ -113,10 +133,11 @@ def add_document(**kwargs):
 
 	return d
 
-def add_user(username, password, email):
+def add_user(username, password, email, role="default"):
 	u = User()
 	u.username = username
 	u.email = email
+	u.role = role
 
 	if User.query.filter(User.username == username).first():
 		return None
