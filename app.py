@@ -2,6 +2,7 @@ import flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from datetime import datetime
 import logging, os, hashlib, random, string
+from functools import wraps
 
 logging.getLogger(__name__)
 logger = logging.getLogger()
@@ -80,9 +81,24 @@ def upload_file():
 	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
 
 # Authentication views
+def login_required(role):
+	def wrap(f):
+		@wraps(f)
+		def wrapped_f(*args, **kwargs):
+			if 'user' in flask.session:
+				if flask.session['user']['role'] == role:
+					return f(*args, **kwargs)
+				else:
+					return "You do not have permission to do that", 403
+			else:
+				flask.flash("You must log in first")
+				return flask.redirect(flask.url_for('basic_login', error="Please log in first."))
+		return wrapped_f
+	return wrap
+
 @app.route('/basic/login')
 def basic_login():
-	return flask.render_template("login.html", message=flask.request.args.get("message",""))
+	return flask.render_template("login.html", error=flask.request.args.get("error",""), message=flask.request.args.get("message",""))
 
 @app.route('/basic/login', methods=['POST'])
 def basic_login_submit():
@@ -107,9 +123,40 @@ def basic_logout():
 	return flask.redirect(flask.url_for('basic_login', message="You have been logged out."))
 
 
-@app.route("/admin")
+@app.route('/admin')
+@login_required('admin')
 def administration():
 	return flask.render_template("admin.html")
+
+@login_required('admin')
+@app.route('/admin/create-user', methods=['POST'])
+def create_user():
+	username = flask.request.form.get("username", "")
+	password = flask.request.form.get("password", "")
+	email = flask.request.form.get("email", "")
+	role = flask.request.form.get("role", "")
+
+	if username and password and email and role:
+		u = add_user(
+			flask.request.form.get("username"),
+			flask.request.form.get("password"),
+			flask.request.form.get("email"),
+			flask.request.form.get("role")
+		)
+		if u:
+			return flask.render_template("admin.html", message="User "+u.username+" created successfully!")
+		else:
+			return flask.render_template("admin.html", error="That user already exists", args=flask.request.form)
+	errormsg = ""
+	if not username:
+		errormsg += "Username required<br/>"
+	if not password:
+		errormsg += "Password required<br/>"
+	if not email:
+		errormsg += "Email required<br/>"
+	if not role:
+		errormsg += "Role required<br/>"
+	return flask.render_template("admin.html", error=errormsg, args=flask.request.args)
 
 # Controllers
 #############

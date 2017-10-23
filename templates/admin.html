@@ -5,7 +5,30 @@
 
 		<div class="container">
 			<h1>Administration view</h1>
-			<div class="alert alert-danger">You can do much damage from here. Please be careful.</div>
+			<div class="alert alert-warning">You can do much damage from here. Please be careful.</div>
+
+			{% if error %}
+			<div class="alert alert-danger">{{error|safe}}</div>
+			{% endif %}
+
+			{% if message %}
+			<div class="alert alert-success">{{message|safe}}</div>
+			{% endif %}
+
+			<form action="{{ url_for('create_user') }}" method="post">
+				<div class="form-group"><label for="username">Username</label> <input class="form-control" type="text" name="username"></div>
+				<div class="form-group"><label for="password">Password</label> <input class="form-control" type="password" name="password"></div>
+				<div class="form-group"><label for="email">Email</label> <input class="form-control" type="email" name="email" placeholder="user@example.com"></div>
+				<div class="form-group">
+						<label for="role">Role</label>
+						<select class="form-control" name="role">
+							<option value="default">Viewer</option>
+							<option value="analyst">Analyst</option>
+							<option value="admin">Administrator</option>
+						</select>
+				</div>
+				<div class="form-group"><input class="btn btn-success" type="submit" value="Add user"></div>
+			</form>
 		</div>
 
 {% endblock %}
