@@ -43,6 +43,7 @@ class Document(db.Model):
 	description = db.Column(db.Text, nullable=True)
 	pub_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 	author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+	author = db.relationship(User)
 	body = db.Column(db.Text, nullable=True)
 
 # Authentication setup
@@ -98,7 +99,7 @@ def edit_document(external_id):
 @login_required(['analyst','admin'])
 def upload_file():
 	f = flask.request.files['the_file']
-	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'])
+	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'], author=flask.session['user'])
 	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
 
 # Authentication views
@@ -187,7 +188,7 @@ def add_document(**kwargs):
 
 	d.external_id = hashlib.sha256(d.title.encode('utf-8')).hexdigest()
 
-	d.author_id = 1
+	d.author_id = kwargs['author']['id']
 
 	db.session.add(d)
 	db.session.commit()

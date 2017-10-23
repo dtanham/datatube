@@ -7,6 +7,7 @@
 		  <p class="lead">DataTube lets you easily and securely publish HTML exports from Jupyter and R Studio.</p>
 		</div>
 
+		{% if session['user'] %}
 		<div class="container">
 			<h2>Documents</h2>
 			<ul>
@@ -15,6 +16,7 @@
 			{% endfor %}
 			</ul>
 		</div>
+		{% endif %}
 
 		{% if session['user'] and session['user']['role'] != "default" %}
 		<div class="container">
