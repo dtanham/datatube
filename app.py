@@ -29,6 +29,8 @@ class User(db.Model):
         return '<User %r>' % self.username
 
     def compare_passwords(u, password):
+    	if not u:
+    		return False
     	if str(hashlib.sha256((str(u.password_salt)+str(password)).encode('utf-8')).hexdigest()) == str(u.password_hash):
     		return True
     	return False
@@ -103,6 +105,11 @@ def basic_logout():
 	if flask.session.get('user', None):
 		flask.session.pop("user")
 	return flask.redirect(flask.url_for('basic_login', message="You have been logged out."))
+
+
+@app.route("/admin")
+def administration():
+	return flask.render_template("admin.html")
 
 # Controllers
 #############

@@ -18,7 +18,7 @@ def do_setup():
 	# db.session.add(u)
 	# db.session.commit()
 
-	u = add_user("default", "password", "default@example.com")
+	u = add_user("default", "password", "default@example.com", role="admin")
 
 
 	# Add test documents

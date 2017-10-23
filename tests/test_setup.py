@@ -30,7 +30,7 @@ def test_user_creation_and_authentication():
 	u2 = validate_user("testuser", "password123")
 	assert u.id == u2.id
 
-def test_session_login():
+def test_good_login():
 	c = app.test_client()
 	r = c.post('/basic/login', data=dict(
         username="default",
@@ -38,7 +38,21 @@ def test_session_login():
     ), follow_redirects=True)
 	assert "Logged in as" in str(r.data)
 
+def test_bad_login():
+	c = app.test_client()
+	r = c.post('/basic/login', data=dict(
+        username="default",
+        password="baspassword"
+    ), follow_redirects=True)
+	assert "The username and password combination you provided is not valid." in str(r.data)
+
 def test_session_logout():
 	c = app.test_client()
 	r = c.get('/basic/logout', follow_redirects=True)
 	assert "You have been logged out" in str(r.data)
+
+def test_admin_role_restriction():
+	c = app.test_client()
+	r = c.get('/admin', follow_redirects=True)
+	assert r.status_code == 403
+

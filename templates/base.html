@@ -13,6 +13,9 @@
 			
 			<div class="navbar-text justify-content-end">
 				{% if session['user'] %}
+					{% if session['user']['role'] == "admin" %}
+						<a href="{{url_for('administration')}}">Admin</a>
+					{% endif %}
 				Logged in as {{ session['user']['username']}}.
 				<a href="{{ url_for('basic_logout') }}">Log out</a>
 				{% else %}
