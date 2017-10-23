@@ -51,42 +51,14 @@ app.config['SECRET_KEY'] = ''.join(random.choice(string.ascii_lowercase+string.d
 
 # Views
 #######
-@app.route("/")
-def home():
-	return flask.render_template("home.html", documents=get_all_documents())
-
-# View raw document
-@app.route("/dox/raw/<external_id>")
-def view_raw_document(external_id):
-	d = get_document(external_id)
-	if not d:
-		flask.abort(404)
-	return d.body
-
-@app.route("/dox/viewer/<external_id>")
-def view_document(external_id):
-	d = get_document(external_id)
-	if not d:
-		flask.abort(404)
-	return flask.render_template("document_viewer.html", document=d)
-
-@app.route("/dox/editor/<external_id>")
-def edit_document(external_id):
-	return "Hi"
-
-@app.route('/dox/raw/', methods=['POST'])
-def upload_file():
-	f = flask.request.files['the_file']
-	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'])
-	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
-
-# Authentication views
 def login_required(role):
 	def wrap(f):
 		@wraps(f)
 		def wrapped_f(*args, **kwargs):
 			if 'user' in flask.session:
-				if flask.session['user']['role'] == role:
+				if flask.session['user']['role'] in role:
+					logger.info("Attempt by user ["+flask.session['user']['username']+" with role ["+flask.session['user']['role']
+							+"] to access function requiring ["+",".join(role)+"]")
 					return f(*args, **kwargs)
 				else:
 					return "You do not have permission to do that", 403
@@ -95,6 +67,41 @@ def login_required(role):
 				return flask.redirect(flask.url_for('basic_login', error="Please log in first."))
 		return wrapped_f
 	return wrap
+
+@app.route("/")
+def home():
+	return flask.render_template("home.html", documents=get_all_documents())
+
+# View raw document
+@app.route("/dox/raw/<external_id>")
+@login_required(['analyst','admin', 'viewer'])
+def view_raw_document(external_id):
+	d = get_document(external_id)
+	if not d:
+		flask.abort(404)
+	return d.body
+
+@app.route("/dox/viewer/<external_id>")
+@login_required(['analyst','admin', 'viewer'])
+def view_document(external_id):
+	d = get_document(external_id)
+	if not d:
+		flask.abort(404)
+	return flask.render_template("document_viewer.html", document=d)
+
+@app.route("/dox/editor/<external_id>")
+@login_required(['analyst','admin', 'viewer'])
+def edit_document(external_id):
+	return "Hi"
+
+@app.route('/dox/raw/', methods=['POST'])
+@login_required(['analyst','admin'])
+def upload_file():
+	f = flask.request.files['the_file']
+	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'])
+	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
+
+# Authentication views
 
 @app.route('/basic/login')
 def basic_login():
@@ -124,11 +131,11 @@ def basic_logout():
 
 
 @app.route('/admin')
-@login_required('admin')
+@login_required(['admin'])
 def administration():
 	return flask.render_template("admin.html")
 
-@login_required('admin')
+@login_required(['admin'])
 @app.route('/admin/create-user', methods=['POST'])
 def create_user():
 	username = flask.request.form.get("username", "")
