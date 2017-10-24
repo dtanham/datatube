@@ -19,4 +19,13 @@ FLASK_DEBUG=1 FLASK_APP=app.py flask run
 
 ```
 
+# Tests
+Can I test it? Yes you can!
+
+The core API and behaviour is well covered by tests, with some of the view layer to boot.
+
+To see for yourself run ```pytest```.
+
+Current build status show below:
+
 [![Build Status](https://travis-ci.org/dtanham/datatube.svg?branch=master)](https://travis-ci.org/dtanham/datatube)
