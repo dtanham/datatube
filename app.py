@@ -45,6 +45,21 @@ class Document(db.Model):
 	author_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 	author = db.relationship(User)
 	body = db.Column(db.Text, nullable=True)
+	version = db.Column(db.Integer, nullable=False, default=1)
+	updated = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+	def copy(self):
+		d = Document()
+		d.external_id = self.external_id
+		d.title = self.title
+		d.description = self.description
+		d.pub_date = self.pub_date
+		d.author_id = self.author_id
+		d.author = self.author
+		d.body = self.body
+		d.version = self.version+1
+		return d
+
 
 # Authentication setup
 app.config['SECRET_KEY'] = ''.join(random.choice(string.ascii_lowercase+string.digits) for i in range(16))
@@ -99,8 +114,18 @@ def edit_document(external_id):
 @login_required(['analyst','admin'])
 def upload_file():
 	f = flask.request.files['the_file']
+
+	if flask.request.args.get("external_id",False):
+		d = get_document(flask.request.args['external_id'])
+		if flask.session['user']['id'] != d.author_id:
+			return "You do not have permission to update this document", 403
+		update_document(external_id=flask.request.args['external_id'], file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'])
+		return flask.redirect(flask.url_for('view_document', external_id=flask.request.args['external_id']))
+	
+
 	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'], author=flask.session['user'])
 	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
+
 
 # Authentication views
 
@@ -169,10 +194,16 @@ def create_user():
 # Controllers
 #############
 def get_all_documents():
-	return Document.query.all()
+	external_ids = db.session.query(Document.external_id).distinct()
+	all_documents = []
+
+	for x in external_ids:
+		all_documents.append(Document.query.filter(Document.external_id==x.external_id).order_by(Document.version.desc()).first())
+
+	return all_documents
 
 def get_document(external_id):
-	d = Document.query.filter_by(external_id=external_id).first()
+	d = Document.query.filter(Document.external_id==external_id).order_by(Document.version.desc()).first()
 	if not d:
 		logger.info("No document found for: "+external_id)
 	return d
@@ -189,6 +220,26 @@ def add_document(**kwargs):
 	d.external_id = hashlib.sha256(d.title.encode('utf-8')).hexdigest()
 
 	d.author_id = kwargs['author']['id']
+
+	db.session.add(d)
+	db.session.commit()
+
+	return d
+
+def update_document(**kwargs):
+	orig = Document.query.filter(Document.external_id==kwargs['external_id']).order_by(Document.version.desc()).first()
+	if not orig:
+		return None
+
+	d = orig.copy()
+
+	if 'title' in kwargs:
+		d.title = kwargs['title']
+	if 'description' in kwargs: 
+		d.description = kwargs['description']
+
+	file_handle = kwargs['file_handle']
+	d.body = file_handle.read().decode('utf-8')
 
 	db.session.add(d)
 	db.session.commit()

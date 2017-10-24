@@ -1,6 +1,8 @@
 from reset_environment import *
 from app import *
 
+import tempfile, os
+
 
 do_setup()
 
@@ -55,4 +57,20 @@ def test_admin_role_restriction():
 	c = app.test_client()
 	r = c.get('/admin', follow_redirects=True)
 	assert "Admin" not in str(r.data)
+
+def test_document_version_increment():
+	# Given that there is an existing document
+	d_initial = Document.query.first()
+	d_latest = Document.query.filter(Document.external_id==d_initial.external_id).order_by(Document.version.desc()).first()
+
+	# When a new document is uploaded to it
+	f = tempfile.NamedTemporaryFile(delete=False)
+	f.write(b"<h1>Some new file content</h1>")
+	f.seek(0)
+	d_new = update_document(external_id=d_latest.external_id, file_handle=f, description=d_latest.description+" changed")
+	f.close()
+	os.unlink(f.name)
+
+	# Then the document version should increment
+	assert d_new.version > d_latest.version
 
