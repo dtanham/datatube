@@ -2,37 +2,51 @@
 
 {% block title %}Home{% endblock %}
 {% block content %}
+
+		{% if not session['user'] %}
 		<div class="jumbotron">
 		  <h1 class="display-3">Share your analysis with the world</h1>
 		  <p class="lead">DataTube lets you easily and securely publish HTML exports from Jupyter and R Studio.</p>
+			<hr class="my-4">
+			<p class="text-center"><a class="btn btn-primary" href="{{ url_for('basic_login') }}">Log in to get started</a></p>
 		</div>
+		{% endif %}
 
 		{% if session['user'] %}
-		<div class="container">
-			<h2>Documents</h2>
-			<ul>
+			<!-- <div class="row"><h2>Documents</h2></div> -->
+			<div class="row" style="margin-top: 20px">
 			{% for d in documents %}
-				<li><a href="{{ url_for('view_document', external_id=d.external_id) }}">{{d.title}}</a></li>
+				<div class="col-sm-6">
+					<div class="card" style="margin-bottom: 20px; margin-right: 20px;">
+						<div class="card-body">
+							<h4 class="card-title">{{ d.title }}</h4>
+							<h6 class="card-subtitle mb-2 text-muted">by {{ d.author.username }}</h6>
+							<p class="card-text">{{ d.description }}</p>
+							<a class="btn btn-primary" href="{{ url_for('view_document', external_id=d.external_id) }}">View</a>
+						</div>
+					</div>
+				</div>
 			{% endfor %}
-			</ul>
-		</div>
+			</div>
 		{% endif %}
 
 		{% if session['user'] and session['user']['role'] != "default" %}
-		<div class="container">
-			<div class="card">
-				<div class="card-body">	
-					<h3 class="card-title">Upload a new document</h3>
-					<form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
-						<div class="form-group"><label for="title">Title:</label> <input class="form-control" type="text" name="title"></div>
-						<div class="form-group"><label for="description">Description:</label> <input class="form-control" type="text" name="description"></div>
-						<div class="form-group"><label for="tags">Tags:</label> <input class="form-control" type="text" name="tags" placeholder="dataviz, playing, MI"></div>
-						<div class="form-group"><label for="the_file">File:</label> <input class="form-control" type="file" name="the_file"></div>
-						<div class="form-group"><input class="btn btn-success" type="submit" value="Submit"></div>
-					</form>
+			<!-- <div class="row"><h2>Adding content</h2></div> -->
+			<div class="row">
+				<div class="col-sm-12">
+					<div class="card">
+						<div class="card-body">
+							<h3 class="card-title">Upload a new document</h3>
+							<form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+								<div class="form-group"><label for="title">Title:</label> <input class="form-control" type="text" name="title"></div>
+								<div class="form-group"><label for="description">Description:</label> <input class="form-control" type="text" name="description"></div>
+								<div class="form-group"><label for="tags">Tags:</label> <input class="form-control" type="text" name="tags" placeholder="dataviz, playing, MI"></div>
+								<div class="form-group"><label for="the_file">File:</label> <input class="form-control" type="file" name="the_file"></div>
+								<div class="form-group"><input class="btn btn-success" type="submit" value="Submit"></div>
+							</form>
+						</div>
+					</div>
 				</div>
 			</div>
-		</div>
 		{% endif %}
 {% endblock %}
-

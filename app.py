@@ -73,10 +73,10 @@ def login_required(role):
 		def wrapped_f(*args, **kwargs):
 			if 'user' in flask.session:
 				if flask.session['user']['role'] in role:
-					logger.info("Attempt by user ["+flask.session['user']['username']+" with role ["+flask.session['user']['role']
-							+"] to access function requiring ["+",".join(role)+"]")
 					return f(*args, **kwargs)
 				else:
+					print("Attempt by user ["+flask.session['user']['username']+" with role ["+flask.session['user']['role']
+							+"] to access function requiring ["+",".join(role)+"]")
 					return "You do not have permission to do that", 403
 			else:
 				flask.flash("You must log in first")
@@ -90,7 +90,7 @@ def home():
 
 # View raw document
 @app.route("/dox/raw/<external_id>")
-@login_required(['analyst','admin', 'viewer'])
+@login_required(['analyst','admin', 'default'])
 def view_raw_document(external_id):
 	d = get_document(external_id)
 	if not d:
@@ -98,7 +98,7 @@ def view_raw_document(external_id):
 	return d.body
 
 @app.route("/dox/viewer/<external_id>")
-@login_required(['analyst','admin', 'viewer'])
+@login_required(['analyst','admin', 'default'])
 def view_document(external_id):
 	d = get_document(external_id)
 	if not d:
@@ -106,7 +106,7 @@ def view_document(external_id):
 	return flask.render_template("document_viewer.html", document=d)
 
 @app.route("/dox/editor/<external_id>")
-@login_required(['analyst','admin', 'viewer'])
+@login_required(['analyst','admin', 'default'])
 def edit_document(external_id):
 	return "Hi"
 
