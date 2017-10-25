@@ -121,7 +121,7 @@ def upload_file():
 			return "You do not have permission to update this document", 403
 		update_document(external_id=flask.request.args['external_id'], file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'])
 		return flask.redirect(flask.url_for('view_document', external_id=flask.request.args['external_id']))
-	
+
 
 	new_doc = add_document(file_handle=f, title=flask.request.form['title'], description=flask.request.form['description'], author=flask.session['user'])
 	return flask.redirect(flask.url_for('view_document', external_id=new_doc.external_id))
@@ -208,6 +208,20 @@ def get_document(external_id):
 		logger.info("No document found for: "+external_id)
 	return d
 
+def get_file_contents(file_handle):
+	try:
+		a = file_handle.read().decode('utf-8')
+	except UnicodeDecodeError:
+		print("Could not decode file as utf-8, trying Windows-1252")
+		try:
+			file_handle.seek(0)
+			a = file_handle.read().decode('Windows-1252')
+			logger.debug("Read length: "+str(a))
+		except:
+			print("Could not decode file as Windows-1252, giving up")
+			return ""
+	return a
+
 def add_document(**kwargs):
 	d = Document()
 
@@ -215,10 +229,9 @@ def add_document(**kwargs):
 	d.description = kwargs['description']
 
 	file_handle = kwargs['file_handle']
-	d.body = file_handle.read().decode('utf-8')
+	d.body = get_file_contents(file_handle)
 
 	d.external_id = hashlib.sha256(d.title.encode('utf-8')).hexdigest()
-
 	d.author_id = kwargs['author']['id']
 
 	db.session.add(d)
@@ -235,11 +248,11 @@ def update_document(**kwargs):
 
 	if 'title' in kwargs:
 		d.title = kwargs['title']
-	if 'description' in kwargs: 
+	if 'description' in kwargs:
 		d.description = kwargs['description']
 
 	file_handle = kwargs['file_handle']
-	d.body = file_handle.read().decode('utf-8')
+	d.body = get_file_contents(file_handle)
 
 	db.session.add(d)
 	db.session.commit()
@@ -272,4 +285,3 @@ def validate_user(username, password):
 		return u
 	else:
 		return None
-

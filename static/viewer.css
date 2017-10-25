@@ -6,5 +6,5 @@ body, html {width: 100%; height: 100%; margin: 0; padding: 0}
 .container .main {position:absolute; top:0px; height: 100%;}
 .row-container {display: table; empty-cells: show; border-collapse: collapse; width: 100%; height: 100%;}
 .details {display: table-row; overflow: auto;}
-.viewer {display: table-row; height: 100%; overflow: hidden }
-.viewer iframe {width: 100%; height: 400%; border: none; margin: 0; padding: 0; display: block;}
+.viewer {display: table-row; height: 600px; overflow: hidden }
+.viewer iframe {width: 100%; height: 600px; border: 1px dashed #ccc; margin: 0; padding: 0; display: block;}
