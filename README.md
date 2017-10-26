@@ -29,3 +29,6 @@ To see for yourself run ```pytest```.
 Current build status show below:
 
 [![Build Status](https://travis-ci.org/dtanham/datatube.svg?branch=master)](https://travis-ci.org/dtanham/datatube)
+
+# Contribute
+[![Waffle info](https://badge.waffle.io/dtanham/datatube.png?columns=all)](https://badge.waffle.io/dtanham/datatube.png?columns=all)
