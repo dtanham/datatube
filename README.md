@@ -32,4 +32,5 @@ Current build status show below:
 
 # Contribute
 The best way to contribute is to [submit a feature request or bug](https://github.com/dtanham/datatube/issues/new). Even better if you then code up a fix and submit a pull request! :)
+
 [![Waffle info](https://badge.waffle.io/dtanham/datatube.png?columns=all)](https://badge.waffle.io/dtanham/datatube.png?columns=all)
