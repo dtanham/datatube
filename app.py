@@ -1,5 +1,5 @@
 import flask
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import logging, os, hashlib, random, string
 from functools import wraps
