@@ -11,6 +11,13 @@ First install the dependencies with ```pip install -r requirements.txt```.
 
 Then set the ```SQLALCHEMY_DATABASE_URI``` environment variable with something that sqlalchemy can handle.
 
+Create tables in the database:
+
+```
+from app import db
+db.create_all()
+```
+
 # Running
 
 ```
