@@ -11,9 +11,12 @@
 				<h1>{{document.title}} by {{document.author.username}}</h1>
 				<p>{{document.description}}</p>
 
-				{% if not request.args.edit and session.user.id == document.author_id %}
-				<p><a href="{{ url_for('view_document', external_id=document.external_id, edit=True) }}" class="btn btn-success">Edit</a></p>
-				{% endif %}
+				<p>
+					<a href="{{ url_for('view_raw_document', external_id=document.external_id, edit=True) }}" class="btn btn-primary">View fullscreen (hit back to exit)</a>
+					{% if not request.args.edit and session.user.id == document.author_id %}
+					<a href="{{ url_for('view_document', external_id=document.external_id, edit=True) }}" class="btn btn-success">Edit</a>
+					{% endif %}
+				</p>
 
 				<p class="small text-right">Version {{document.version}}. Updated: {{ document.updated.day }}/{{ document.updated.month }}/{{ document.updated.year }}</p>
 
